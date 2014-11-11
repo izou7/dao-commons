@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Provide advanced hibernate access functions.
+ * Provide advanced hibernate  access functions.
  *
  * @author zy
  * @version 1.0.0
