@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-4.0.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	<!-- Data source. -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+	      destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}"/>
+		<property name="jdbcUrl" value="${jdbc.url}"/>
+		<property name="user" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="minPoolSize" value="${c3p0.minPoolSize}"/>
+		<property name="maxPoolSize" value="${c3p0.maxPoolSize}"/>
+		<property name="maxIdleTime" value="${c3p0.maxIdleTime}"/>
+		<property name="acquireIncrement" value="${c3p0.acquireIncrement}"/>
+	</bean>
+	<bean id="sessionFactory"
+	      class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="packagesToScan" value="cn.**.entity"/>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Transaction. -->
+	<bean id="txManager"
+	      class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<!-- Declarative transaction demarcation. -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="save*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="create*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="update*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="accept*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="reject*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="exec*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="sync*" propagation="REQUIRED" rollback-for="Exception"/>
+			<tx:method name="*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="txPointCut" expression="execution(* cn..service.impl.*.*(..))"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut"/>
+	</aop:config>
+
+	<!-- Annotation driven transaction -->
+	<tx:annotation-driven transaction-manager="txManager"/>
+
+	<context:property-placeholder location="classpath:database.properties" ignore-unresolvable="true"/>
+</beans>

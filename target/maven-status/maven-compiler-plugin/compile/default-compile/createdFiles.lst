@@ -1,0 +1,3 @@
+cn\zy\commons\dao\hibernate\AdvancedHibernateDao.class
+cn\zy\commons\dao\ldap\AdvancedLDAPDao.class
+cn\zy\commons\dao\mongodb\AdvancedMongoDBDao.class
